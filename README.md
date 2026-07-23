@@ -20,6 +20,6 @@ Not published to any app store.
 
 ## Status
 
-Phase 1 done: minimal Compose app scaffolded, builds to a debug APK
+Phase 2 done: bundled 27 CSV decks, CSV parser + deck list screen (real card counts; SRS/study session next)
 (`./gradlew assembleDebug`). Decks and SRS engine land in later phases.
 See [PLAN.md](PLAN.md) for the roadmap.
