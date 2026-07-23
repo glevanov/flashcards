@@ -6,14 +6,19 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import io.levanov.flashcards.data.Deck
+import io.levanov.flashcards.data.DeckRepository
+import io.levanov.flashcards.ui.home.DeckListScreen
 import io.levanov.flashcards.ui.theme.FlashcardsTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,33 +26,20 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             FlashcardsTheme {
-                Scaffold { innerPadding ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("Hej! Svenska Flashcards")
-                    }
+                val repository = remember { DeckRepository(assets) }
+                val decks by produceState<List<Deck>?>(initialValue = null) {
+                    value = withContext(Dispatchers.IO) { repository.loadDecks() }
                 }
-            }
-        }
-    }
-}
+                when (val d = decks) {
+                    null -> Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator()
+                    }
 
-@Preview(showBackground = true)
-@Composable
-fun MainActivityPreview() {
-    FlashcardsTheme {
-        Scaffold { innerPadding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Hej! Svenska Flashcards")
+                    else -> DeckListScreen(decks = d)
+                }
             }
         }
     }
