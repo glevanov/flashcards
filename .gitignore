@@ -1,0 +1,19 @@
+# Gradle / Android
+.gradle/
+build/
+*/build/
+local.properties
+.cxx/
+.kotlin/
+
+# IDE
+.idea/
+*.iml
+.zed/
+
+# Signing — never commit keystores (docs/RELEASING.md)
+*.keystore
+*.jks
+
+# Subagent artifacts
+.pi-subagents/
