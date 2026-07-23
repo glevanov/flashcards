@@ -113,7 +113,7 @@ Per deck + global, mirroring `flashcards.py stats`:
 | Phase | Deliverable | Status |
 |---|---|---|
 | 0 | Fedora dev env: JDK, Android SDK cmdline-tools, adb to phone | ✅ done |
-| 1 | Gradle scaffold, Compose "hello" installed on phone via adb | ⬜ |
+| 1 | Gradle scaffold, Compose "hello" installed on phone via adb | ✅ done (builds; on-device pending phone connection) |
 | 2 | Deck assets + CSV parser + deck list screen | ⬜ |
 | 3 | Study session: flip, swipe/buttons, Leitner engine + Room | ⬜ |
 | 4 | TTS, reverse mode, stats screen, settings | ⬜ |

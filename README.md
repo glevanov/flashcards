@@ -20,4 +20,6 @@ Not published to any app store.
 
 ## Status
 
-🚧 Pre-scaffold. See [PLAN.md](PLAN.md) for the roadmap.
+Phase 1 done: minimal Compose app scaffolded, builds to a debug APK
+(`./gradlew assembleDebug`). Decks and SRS engine land in later phases.
+See [PLAN.md](PLAN.md) for the roadmap.

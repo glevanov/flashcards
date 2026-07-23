@@ -12,7 +12,7 @@ flashcards/
 │   └── src/main/
 │       ├── AndroidManifest.xml
 │       ├── assets/vocab/          # bundled deck CSVs (see below)
-│       ├── java/com/<tbd>/flashcards/
+│       ├── java/io/levanov/flashcards/
 │       │   ├── MainActivity.kt
 │       │   ├── data/              # CSV parsing, Room entities/DAO/DB
 │       │   ├── srs/               # Leitner engine (pure Kotlin, unit-tested)
