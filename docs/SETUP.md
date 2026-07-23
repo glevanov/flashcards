@@ -6,7 +6,9 @@ No Android Studio required — everything is CLI-driven.
 ## 1. JDK 21
 
 Gradle/AGP need a full JDK (17+; 21 recommended). The system may only have a
-headless Java 25 runtime — install the JDK 21 devel package:
+headless Java 25 runtime. Two options:
+
+### Option A — system package (dnf, needs sudo)
 
 ```bash
 sudo dnf install java-21-openjdk-devel
@@ -18,6 +20,30 @@ Point Gradle at JDK 21 regardless of the system default Java, via
 ```properties
 org.gradle.java.home=/usr/lib/jvm/java-21-openjdk
 ```
+
+### Option B — user-space tarball (no sudo)
+
+Useful when `sudo` is unavailable (e.g. automated setup). Downloads the
+Eclipse Temurin JDK 21 to `~/.local/opt/jdk-21`:
+
+```bash
+mkdir -p ~/.local/opt && cd /tmp
+wget https://api.adoptium.net/v3/binary/latest/21/ga/linux/x64/jdk/hotspot/normal/eclipse -O jdk21.tar.gz
+tar xzf jdk21.tar.gz
+mv jdk-21.* ~/.local/opt/jdk-21
+~/.local/opt/jdk-21/bin/javac -version   # must print 21.x
+```
+
+Then the same `~/.gradle/gradle.properties` line, pointing at the user-space
+path instead:
+
+```properties
+org.gradle.java.home=/home/<you>/.local/opt/jdk-21
+```
+
+> Note: this machine currently uses Option B. The tarball is trivially
+> replaceable with the dnf package later — just update the
+> `org.gradle.java.home` path.
 
 ## 2. Android SDK command-line tools
 
