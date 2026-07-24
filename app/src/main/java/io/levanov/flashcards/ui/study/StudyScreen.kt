@@ -100,9 +100,13 @@ fun StudyScreen(
                             },
                         )
                     }
-                    // 🔊 button (only while session is active and TTS is enabled+available)
-                    if (state.queue != null && !state.finished && state.ttsEnabled && tts.available) {
-                        IconButton(onClick = { tts.speak(ttsText(state)) }) {
+                    // 🔊 button (shown while session is active when the setting is enabled;
+                    // disabled until TTS finishes initializing and reports availability)
+                    if (state.queue != null && !state.finished && state.ttsEnabled) {
+                        IconButton(
+                            enabled = tts.available,
+                            onClick = { tts.speak(ttsText(state)) },
+                        ) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_volume_up_24),
                                 contentDescription = "Play pronunciation",
