@@ -12,9 +12,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +30,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -41,6 +50,8 @@ import io.levanov.flashcards.ui.theme.FlashcardsTheme
 fun HomeScreen(
     onStudyDeck: (String) -> Unit,
     onStudyAll: () -> Unit,
+    onOpenStats: () -> Unit,
+    onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val vm: HomeViewModel = viewModel(factory = HomeViewModel.Factory)
@@ -51,6 +62,8 @@ fun HomeScreen(
             deckUis = d,
             onStudyDeck = onStudyDeck,
             onStudyAll = onStudyAll,
+            onOpenStats = onOpenStats,
+            onOpenSettings = onOpenSettings,
             modifier = modifier,
         )
     }
@@ -75,6 +88,8 @@ private fun DeckListContent(
     deckUis: List<HomeViewModel.DeckUi>,
     onStudyDeck: (String) -> Unit,
     onStudyAll: () -> Unit,
+    onOpenStats: () -> Unit,
+    onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val totalDue = deckUis.sumOf { it.dueCount }
@@ -89,6 +104,25 @@ private fun DeckListContent(
                 colors = TopAppBarDefaults.topAppBarColors(
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
+                actions = {
+                    var menuOpen by remember { mutableStateOf(false) }
+                    IconButton(onClick = { menuOpen = true }) {
+                        Icon(Icons.Filled.MoreVert, contentDescription = "Menu")
+                    }
+                    DropdownMenu(
+                        expanded = menuOpen,
+                        onDismissRequest = { menuOpen = false },
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Stats") },
+                            onClick = { menuOpen = false; onOpenStats() },
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Settings") },
+                            onClick = { menuOpen = false; onOpenSettings() },
+                        )
+                    }
+                },
             )
         }
     ) { innerPadding ->
@@ -208,6 +242,8 @@ fun HomeScreenPreview() {
             ),
             onStudyDeck = {},
             onStudyAll = {},
+            onOpenStats = {},
+            onOpenSettings = {},
         )
     }
 }

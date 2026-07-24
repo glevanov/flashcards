@@ -18,6 +18,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -28,11 +30,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -59,6 +64,12 @@ fun StudyScreen(
     val vm: StudyViewModel = viewModel(factory = StudyViewModel.factory(deckName))
     val state by vm.uiState.collectAsStateWithLifecycle()
 
+    val context = LocalContext.current
+    val tts = remember { TtsManager(context) }
+    DisposableEffect(Unit) {
+        onDispose { tts.shutdown() }
+    }
+
     val title = when {
         state.finished -> "Done"
         deckName != null -> deckName.substringAfterLast('/')
@@ -73,6 +84,29 @@ fun StudyScreen(
                 navigationIcon = {
                     IconButton(onClick = onExit) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    // Reverse toggle (always visible)
+                    IconButton(onClick = vm::toggleReversed) {
+                        Icon(
+                            Icons.Filled.Refresh,
+                            contentDescription = "Reverse direction",
+                            tint = if (state.reversed) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                LocalContentColor.current
+                            },
+                        )
+                    }
+                    // 🔊 button (only while session is active and TTS is enabled+available)
+                    if (state.queue != null && !state.finished && state.ttsEnabled && tts.available) {
+                        IconButton(onClick = { tts.speak(ttsText(state)) }) {
+                            Icon(
+                                Icons.Filled.PlayArrow,
+                                contentDescription = "Play pronunciation",
+                            )
+                        }
                     }
                 },
             )
@@ -222,7 +256,7 @@ private fun SessionContent(
                             )
                             Spacer(Modifier.height(16.dp))
                             Text(
-                                card.swedish,
+                                if (state.reversed) card.english else card.swedish,
                                 style = MaterialTheme.typography.headlineLarge,
                                 textAlign = TextAlign.Center,
                             )
@@ -236,7 +270,7 @@ private fun SessionContent(
                             verticalArrangement = Arrangement.Center,
                         ) {
                             Text(
-                                card.english,
+                                if (state.reversed) card.swedish else card.english,
                                 style = MaterialTheme.typography.headlineMedium,
                                 textAlign = TextAlign.Center,
                             )
@@ -385,5 +419,46 @@ fun StudyScreenBackPreview() {
             onGrade = {},
             onSkip = {},
         )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun StudyScreenReversedPreview() {
+    FlashcardsTheme {
+        SessionContent(
+            state = StudyUiState(
+                queue = listOf(
+                    SessionCard(
+                        key = "rivstart/kapitel-01::en fritid",
+                        deck = "rivstart/kapitel-01",
+                        swedish = "en fritid",
+                        english = "free time",
+                        example = "På min fritid spelar jag fotboll.",
+                    ),
+                ),
+                index = 0,
+                revealed = false,
+                reversed = true,
+            ),
+            onReveal = {},
+            onGrade = {},
+            onSkip = {},
+        )
+    }
+}
+
+/**
+ * What TTS speaks for the current card:
+ * - Reverse mode: always the Swedish word (it's on the back).
+ * - Normal mode, revealed + example present: the example sentence.
+ * - Normal mode otherwise: the Swedish word.
+ */
+private fun ttsText(state: StudyUiState): String {
+    val card = state.queue?.getOrNull(state.index) ?: return ""
+    return when {
+        state.reversed -> card.swedish
+        state.revealed && card.example.isNotBlank() -> card.example
+        else -> card.swedish
     }
 }

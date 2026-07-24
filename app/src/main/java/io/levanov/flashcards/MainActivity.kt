@@ -11,6 +11,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import io.levanov.flashcards.ui.Routes
 import io.levanov.flashcards.ui.home.HomeScreen
+import io.levanov.flashcards.ui.settings.SettingsScreen
+import io.levanov.flashcards.ui.stats.StatsScreen
 import io.levanov.flashcards.ui.study.StudyScreen
 import io.levanov.flashcards.ui.theme.FlashcardsTheme
 
@@ -30,6 +32,12 @@ class MainActivity : ComponentActivity() {
                             onStudyAll = {
                                 navController.navigate(Routes.STUDY_ALL)
                             },
+                            onOpenStats = {
+                                navController.navigate(Routes.STATS)
+                            },
+                            onOpenSettings = {
+                                navController.navigate(Routes.SETTINGS)
+                            },
                         )
                     }
                     composable(
@@ -46,6 +54,12 @@ class MainActivity : ComponentActivity() {
                             deckName = entry.arguments?.getString("deck"),
                             onExit = { navController.popBackStack() },
                         )
+                    }
+                    composable(Routes.STATS) {
+                        StatsScreen(onExit = { navController.popBackStack() })
+                    }
+                    composable(Routes.SETTINGS) {
+                        SettingsScreen(onExit = { navController.popBackStack() })
                     }
                 }
             }
