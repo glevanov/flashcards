@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -46,12 +45,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import io.levanov.flashcards.R
 import io.levanov.flashcards.ui.theme.FlashcardsTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -103,7 +104,7 @@ fun StudyScreen(
                     if (state.queue != null && !state.finished && state.ttsEnabled && tts.available) {
                         IconButton(onClick = { tts.speak(ttsText(state)) }) {
                             Icon(
-                                Icons.Filled.PlayArrow,
+                                painter = painterResource(R.drawable.ic_volume_up_24),
                                 contentDescription = "Play pronunciation",
                             )
                         }
