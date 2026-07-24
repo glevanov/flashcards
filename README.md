@@ -20,7 +20,9 @@ Not published to any app store.
 
 ## Status
 
-Phase 3 done: CSV decks + deck list with real due/new counts, study session with
-card flip + Leitner SRS engine + Room persistence (next: TTS/reverse/stats in Phase 4).
+Phase 4 done: study sessions with Leitner SRS + Room persistence, Swedish TTS
+pronunciation, reverse mode, stats screen (box distribution), and settings
+(new-cards-per-day, TTS toggle). All core features complete — Phase 5 is the
+GitHub Actions release pipeline + Obtanium distribution.
 (`./gradlew assembleDebug`).
 See [PLAN.md](PLAN.md) for the roadmap.

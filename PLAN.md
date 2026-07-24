@@ -116,7 +116,7 @@ Per deck + global, mirroring `flashcards.py stats`:
 | 1 | Gradle scaffold, Compose "hello" installed on phone via adb | ✅ done |
 | 2 | Deck assets + CSV parser + deck list screen | ✅ done |
 | 3 | Study session: flip, swipe/buttons, Leitner engine + Room | ✅ done |
-| 4 | TTS, reverse mode, stats screen, settings | ⬜ |
+| 4 | TTS, reverse mode, stats screen, settings | ✅ done |
 | 5 | GitHub Actions release pipeline + Obtanium end-to-end | ⬜ |
 
 ## Non-goals (v1)
