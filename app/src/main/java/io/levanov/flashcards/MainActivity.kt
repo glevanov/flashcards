@@ -4,21 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import io.levanov.flashcards.data.Deck
-import io.levanov.flashcards.data.DeckRepository
-import io.levanov.flashcards.ui.home.DeckListScreen
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import io.levanov.flashcards.ui.Routes
+import io.levanov.flashcards.ui.home.HomeScreen
+import io.levanov.flashcards.ui.study.StudyScreen
 import io.levanov.flashcards.ui.theme.FlashcardsTheme
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -26,19 +20,33 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             FlashcardsTheme {
-                val repository = remember { DeckRepository(assets) }
-                val decks by produceState<List<Deck>?>(initialValue = null) {
-                    value = withContext(Dispatchers.IO) { repository.loadDecks() }
-                }
-                when (val d = decks) {
-                    null -> Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        CircularProgressIndicator()
+                val navController = rememberNavController()
+                NavHost(navController, startDestination = Routes.HOME) {
+                    composable(Routes.HOME) {
+                        HomeScreen(
+                            onStudyDeck = { deck ->
+                                navController.navigate(Routes.study(deck))
+                            },
+                            onStudyAll = {
+                                navController.navigate(Routes.STUDY_ALL)
+                            },
+                        )
                     }
-
-                    else -> DeckListScreen(decks = d)
+                    composable(
+                        route = "study?deck={deck}",
+                        arguments = listOf(
+                            navArgument("deck") {
+                                type = NavType.StringType
+                                nullable = true
+                                defaultValue = null
+                            },
+                        ),
+                    ) { entry ->
+                        StudyScreen(
+                            deckName = entry.arguments?.getString("deck"),
+                            onExit = { navController.popBackStack() },
+                        )
+                    }
                 }
             }
         }
