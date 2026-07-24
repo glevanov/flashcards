@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import io.levanov.flashcards.data.DeckRepository
+import io.levanov.flashcards.data.SettingsRepository
 import io.levanov.flashcards.data.SrsRepository
 import io.levanov.flashcards.data.db.FlashcardsDatabase
 import io.levanov.flashcards.srs.CardState
@@ -15,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -34,6 +36,8 @@ data class StudyUiState(
     val gradedCount: Int = 0,
     val correctCount: Int = 0,
     val finished: Boolean = false,
+    val reversed: Boolean = false,
+    val ttsEnabled: Boolean = true,
 )
 
 class StudyViewModel(
@@ -43,6 +47,7 @@ class StudyViewModel(
 
     private val deckRepo = DeckRepository(app.assets)
     private val srsRepo = SrsRepository(FlashcardsDatabase.get(app).cardStateDao())
+    private val settingsRepo = SettingsRepository(app)
 
     private val _uiState = MutableStateFlow(StudyUiState())
     val uiState: StateFlow<StudyUiState> = _uiState.asStateFlow()
@@ -52,6 +57,7 @@ class StudyViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
+            val appSettings = settingsRepo.settings.first()
             val decks = deckRepo.loadDecks()
             val scoped = if (deckName != null) decks.filter { it.name == deckName } else decks
             val keys = scoped.flatMap { d -> d.cards.map { c -> "${d.name}::${c.swedish}" to d.name } }
@@ -67,7 +73,7 @@ class StudyViewModel(
             val queueKeys = SessionBuilder.buildSession(
                 candidates = candidates,
                 today = today,
-                newLimit = SessionBuilder.DEFAULT_NEW_CARDS,
+                newLimit = appSettings.newCardsPerDay,
             )
             val keyToCard = scoped.flatMap { d ->
                 d.cards.map { c ->
@@ -81,7 +87,7 @@ class StudyViewModel(
                 }
             }.toMap()
             val queue = queueKeys.mapNotNull { keyToCard[it] }
-            _uiState.update { it.copy(queue = queue) }
+            _uiState.update { it.copy(queue = queue, ttsEnabled = appSettings.ttsEnabled) }
         }
     }
 
@@ -113,6 +119,10 @@ class StudyViewModel(
                 finished = finished,
             )
         }
+    }
+
+    fun toggleReversed() {
+        _uiState.update { it.copy(reversed = !it.reversed) }
     }
 
     fun skip() {
