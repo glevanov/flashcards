@@ -20,6 +20,7 @@ Not published to any app store.
 
 ## Status
 
-Phase 2 done: bundled 27 CSV decks, CSV parser + deck list screen (real card counts; SRS/study session next)
-(`./gradlew assembleDebug`). Decks and SRS engine land in later phases.
+Phase 3 done: CSV decks + deck list with real due/new counts, study session with
+card flip + Leitner SRS engine + Room persistence (next: TTS/reverse/stats in Phase 4).
+(`./gradlew assembleDebug`).
 See [PLAN.md](PLAN.md) for the roadmap.
