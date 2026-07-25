@@ -13,7 +13,7 @@
 | Kotlin + Jetpack Compose (Material 3) | Native, Android-only target; no cross-platform overhead |
 | Gradle (KTS) + Android Gradle Plugin | Builds fully from CLI; no Android Studio needed (Zed is the editor) |
 | Room (SQLite) | On-device SRS state persistence |
-| Android TTS (Swedish voice) | Built-in pronunciation, no network or extra deps |
+| Piper Alma (`sv_SE`) via sherpa-onnx | Bundled on-device pronunciation, independent of system voice packs |
 | GitHub Actions | Builds signed release APKs attached to GitHub releases for Obtanium |
 
 ## Decisions (locked in)
@@ -21,7 +21,7 @@
 1. **Decks are bundled as assets** (`app/src/main/assets/vocab/...`), copied from
    `../swedish-study/vocab/`. New vocab → copy CSVs → tag a release → Obtanium
    updates the app. No file-import UI in v1.
-2. **TTS pronunciation is in v1** (🔊 button on cards, Swedish locale).
+2. **TTS pronunciation is in v1** (🔊 button on cards, bundled Piper Alma `sv_SE`).
 3. **No migration of `cards/state.json`** from the Python tool — phone starts fresh.
 4. **Repo is public** on GitHub. Signing key lives in GitHub secrets (never committed).
 
@@ -96,7 +96,8 @@ RIVSTART
 - After reveal, grade:
   - **Swipe right = knew it**, **swipe left = didn't**;
   - ✓ / ✗ buttons always visible as fallback.
-- **🔊 button** speaks the Swedish (and optionally the example) via TTS.
+- **🔊 button** speaks the Swedish (and optionally the example) via bundled
+  Piper TTS.
 - Toggle for **reverse mode** (English front → Swedish back) per session,
   equivalent to the Python tool's `--reverse`.
 - Session ends with a summary: correct/total, accuracy %.

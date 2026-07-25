@@ -29,6 +29,9 @@ android {
     buildFeatures {
         compose = true
     }
+    androidResources {
+        noCompress += "onnx"
+    }
 }
 
 kotlin {
@@ -53,6 +56,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.sherpa.onnx)
 
     testImplementation(libs.junit)
 }

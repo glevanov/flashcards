@@ -35,7 +35,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -52,6 +51,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import io.levanov.flashcards.FlashcardsApplication
 import io.levanov.flashcards.R
 import io.levanov.flashcards.ui.theme.FlashcardsTheme
 
@@ -66,10 +66,7 @@ fun StudyScreen(
     val state by vm.uiState.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
-    val tts = remember { TtsManager(context) }
-    DisposableEffect(Unit) {
-        onDispose { tts.shutdown() }
-    }
+    val tts = (context.applicationContext as FlashcardsApplication).ttsManager
 
     val title = when {
         state.finished -> "Done"
