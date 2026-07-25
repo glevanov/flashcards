@@ -77,7 +77,7 @@ class TtsManager(context: Context) {
                 }
                 val audio = currentTts.generateWithConfigAndCallback(
                     text = text,
-                    config = GenerationConfig(sid = 0, speed = 1.0f, silenceScale = 0.2f),
+                    config = GenerationConfig(sid = 0, speed = 0.6f, silenceScale = 0.2f),
                     callback = callback,
                 )
                 if (!isCurrentRequest(requestId) || !currentCoroutineContext().isActive) return@launch
