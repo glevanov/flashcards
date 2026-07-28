@@ -39,14 +39,13 @@ object CsvParser {
             }
             if (isFirstLine && row[0].equals("swedish", ignoreCase = true)) {
                 isFirstLine = false
-                continue // header row
+                continue
             }
             isFirstLine = false
             cards += Card(
                 swedish = row[0],
                 english = row.getOrElse(1) { "" },
                 example = row.getOrElse(2) { "" },
-                // extra columns beyond 3 ignored, matching flashcards.py
             )
         }
         return cards
@@ -64,16 +63,15 @@ object CsvParser {
         while (i <= n) {
             val field = StringBuilder()
             if (i < n && line[i] == '"') {
-                // Quoted field: consume until closing quote, "" = literal "
-                i++ // skip opening quote
+                i++
                 while (i < n) {
                     val c = line[i]
                     if (c == '"') {
                         if (i + 1 < n && line[i + 1] == '"') {
                             field.append('"')
-                            i += 2 // escaped quote
+                            i += 2
                         } else {
-                            i++ // skip closing quote
+                            i++
                             break
                         }
                     } else {
@@ -81,11 +79,8 @@ object CsvParser {
                         i++
                     }
                 }
-                // Unterminated quote: field ends at EOL (lenient, no exception).
-                // Skip any trailing chars until comma or EOL.
                 while (i < n && line[i] != ',') i++
             } else {
-                // Unquoted field: run to comma or EOL
                 while (i < n && line[i] != ',') {
                     field.append(line[i])
                     i++
@@ -93,9 +88,9 @@ object CsvParser {
             }
             fields.add(field.toString())
             if (i < n && line[i] == ',') {
-                i++ // move past comma, start next field
+                i++
             } else {
-                break // EOL reached
+                break
             }
         }
         return fields

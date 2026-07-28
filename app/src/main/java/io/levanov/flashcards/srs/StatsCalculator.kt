@@ -4,9 +4,9 @@ package io.levanov.flashcards.srs
 data class DeckStats(
     val total: Int,
     val newCount: Int,
-    val learningCount: Int,          // reviewed, not mastered (boxes 1..5)
-    val masteredCount: Int,          // box 6
-    val boxCounts: Map<Int, Int>,    // boxes 1..6, every key present (0-filled)
+    val learningCount: Int,
+    val masteredCount: Int,
+    val boxCounts: Map<Int, Int>,
     val seen: Int,
     val correct: Int,
 ) {

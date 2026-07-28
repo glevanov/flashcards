@@ -58,11 +58,11 @@ class StatsCalculatorTest {
     @Test
     fun `learning excludes new and mastered`() {
         val states = listOf(
-            LeitnerEngine.newState(today),                                             // new
-            LeitnerEngine.newState(today),                                             // new
-            LeitnerEngine.newState(today).copy(isNew = false, box = 2),                 // learning
-            LeitnerEngine.newState(today).copy(isNew = false, box = 5),                 // learning
-            LeitnerEngine.newState(today).copy(isNew = false, box = 6),                 // mastered
+            LeitnerEngine.newState(today),
+            LeitnerEngine.newState(today),
+            LeitnerEngine.newState(today).copy(isNew = false, box = 2),
+            LeitnerEngine.newState(today).copy(isNew = false, box = 5),
+            LeitnerEngine.newState(today).copy(isNew = false, box = 6),
         )
         val stats = StatsCalculator.aggregate(states)
         assertEquals(2, stats.newCount)
@@ -94,8 +94,8 @@ class StatsCalculatorTest {
         val box9 = LeitnerEngine.newState(today).copy(isNew = false, box = 9)
         val box0 = LeitnerEngine.newState(today).copy(isNew = false, box = 0)
         val stats = StatsCalculator.aggregate(listOf(box9, box0))
-        assertEquals(1, stats.boxCounts.getValue(6))   // 9 clamped to 6
-        assertEquals(1, stats.boxCounts.getValue(1))   // 0 clamped to 1
+        assertEquals(1, stats.boxCounts.getValue(6))
+        assertEquals(1, stats.boxCounts.getValue(1))
     }
 
     @Test
@@ -105,7 +105,6 @@ class StatsCalculatorTest {
         }
         val stats = StatsCalculator.aggregate(states)
         assertEquals((1..6).toSet(), stats.boxCounts.keys)
-        // Also verify with an empty input
         val emptyStats = StatsCalculator.aggregate(emptyList())
         assertEquals((1..6).toSet(), emptyStats.boxCounts.keys)
     }

@@ -38,7 +38,6 @@ class CsvParserTest {
             "swedish,english,example"
         val cards = CsvParser.parse(csv)
         assertEquals(2, cards.size)
-        // Second row is NOT a header because it isn't the first line — matches python.
         assertEquals("swedish", cards[1].swedish)
         assertEquals("english", cards[1].english)
         assertEquals("example", cards[1].example)

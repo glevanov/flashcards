@@ -30,10 +30,10 @@ data class SessionCard(
 )
 
 data class StudyUiState(
-    val queue: List<SessionCard>? = null, // null = loading, empty = nothing due
+    val queue: List<SessionCard>? = null,
     val index: Int = 0,
-    val faceBack: Boolean = false, // which side is currently visible (toggled by tap)
-    val revealed: Boolean = false,   // card has been seen once -> buttons/swipe armed
+    val faceBack: Boolean = false,
+    val revealed: Boolean = false,
     val gradedCount: Int = 0,
     val correctCount: Int = 0,
     val finished: Boolean = false,
@@ -53,7 +53,6 @@ class StudyViewModel(
     private val _uiState = MutableStateFlow(StudyUiState())
     val uiState: StateFlow<StudyUiState> = _uiState.asStateFlow()
 
-    // In-memory copy of current card states, updated per grade during the session.
     private val stateByKey = mutableMapOf<String, CardState>()
 
     init {
@@ -97,7 +96,6 @@ class StudyViewModel(
             val newFaceBack = !it.faceBack
             it.copy(
                 faceBack = newFaceBack,
-                // Arming the first time the back is shown; stays armed until we move on.
                 revealed = it.revealed || newFaceBack,
             )
         }
@@ -139,7 +137,6 @@ class StudyViewModel(
         val queue = current.queue ?: return
         if (current.finished || current.index >= queue.size) return
         val card = queue[current.index]
-        // Re-queue at end without a DB write.
         val newQueue = queue.toMutableList().apply {
             removeAt(current.index)
             add(card)

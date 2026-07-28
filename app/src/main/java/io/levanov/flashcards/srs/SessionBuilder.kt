@@ -25,5 +25,5 @@ object SessionBuilder {
         return (due.shuffled(random) + new.shuffled(random).take(newLimit)).map { it.first }
     }
 
-    const val DEFAULT_NEW_CARDS = 10 // Phase 4 moves this to settings
+    const val DEFAULT_NEW_CARDS = 10
 }

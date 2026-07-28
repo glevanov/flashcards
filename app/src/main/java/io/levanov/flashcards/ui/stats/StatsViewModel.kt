@@ -28,9 +28,9 @@ class StatsViewModel(app: Application) : AndroidViewModel(app) {
     private val srsRepo = SrsRepository(FlashcardsDatabase.get(app).cardStateDao())
 
     data class DeckStatsUi(
-        val deckName: String,        // full name, e.g. "core/adjectives"
-        val displayName: String,     // "adjectives"
-        val group: String,           // "core"
+        val deckName: String,
+        val displayName: String,
+        val group: String,
         val stats: DeckStats,
     )
 
@@ -46,7 +46,6 @@ class StatsViewModel(app: Application) : AndroidViewModel(app) {
         val today = LocalDate.now()
         val stateByKey = entities.associateBy { it.key }
 
-        // Compute states per deck once, reuse for both per-deck and global.
         val statesByDeck: Map<String, List<CardState>> = decks.associate { deck ->
             val cardStates = deck.cards.map { c ->
                 stateByKey["${deck.name}::${c.swedish}"]?.toCardState()

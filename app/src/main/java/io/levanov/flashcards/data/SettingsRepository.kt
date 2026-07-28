@@ -9,8 +9,6 @@ import io.levanov.flashcards.srs.SessionBuilder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-// File-level extension property — the DataStore singleton lives on the
-// Application context; DataStore forbids multiple instances per file.
 private val Context.settingsStore by preferencesDataStore(name = "settings")
 
 data class AppSettings(

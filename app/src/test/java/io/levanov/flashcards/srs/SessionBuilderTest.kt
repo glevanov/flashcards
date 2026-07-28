@@ -18,10 +18,10 @@ class SessionBuilderTest {
     @Test
     fun dueCardsComeBeforeNewCards() {
         val candidates = listOf(
-            "k1" to newState(),          // new
-            "k2" to dueCard(),           // due
-            "k3" to newState(),          // new
-            "k4" to dueCard(),           // due
+            "k1" to newState(),
+            "k2" to dueCard(),
+            "k3" to newState(),
+            "k4" to dueCard(),
         )
         val queue = SessionBuilder.buildSession(candidates, today, newLimit = 10, random = Random(42))
         val dueKeys = queue.take(2)

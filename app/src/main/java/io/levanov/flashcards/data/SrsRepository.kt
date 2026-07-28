@@ -14,7 +14,6 @@ class SrsRepository(private val dao: CardStateDao) {
     fun observeStates(): Flow<List<CardStateEntity>> = dao.observeAll()
 
     suspend fun statesFor(keys: List<Pair<String, String>>): Map<String, CardState> {
-        // keys: (cardKey, deckName); rows missing from DB get newState(today)
         val today = LocalDate.now()
         val stored = dao.getByKeys(keys.map { it.first }).associateBy { it.key }
         return keys.associate { (key, _) ->

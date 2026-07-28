@@ -83,7 +83,6 @@ private fun StatsContent(
             modifier = Modifier.fillMaxSize(),
             contentPadding = innerPadding,
         ) {
-            // Global card
             item(key = "global") {
                 val g = uiState.global
                 ElevatedCard(
@@ -115,7 +114,6 @@ private fun StatsContent(
                 }
             }
 
-            // Per-deck rows grouped by folder
             val grouped = uiState.decks.groupBy { it.group }
             grouped.forEach { (group, groupDecks) ->
                 item(key = "header:$group") {

@@ -85,7 +85,6 @@ fun StudyScreen(
                     }
                 },
                 actions = {
-                    // Reverse toggle (always visible)
                     IconButton(onClick = vm::toggleReversed) {
                         Icon(
                             Icons.Filled.Refresh,
@@ -97,8 +96,6 @@ fun StudyScreen(
                             },
                         )
                     }
-                    // 🔊 button (shown while session is active when the setting is enabled;
-                    // disabled until TTS finishes initializing and reports availability)
                     if (state.queue != null && !state.finished && state.ttsEnabled) {
                         IconButton(
                             enabled = tts.available,
@@ -171,7 +168,6 @@ private fun SessionContent(
     Column(
         modifier = modifier,
     ) {
-        // Progress
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -189,7 +185,6 @@ private fun SessionContent(
             )
         }
 
-        // Card area
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -462,12 +457,6 @@ fun StudyScreenReversedPreview() {
     }
 }
 
-/**
- * What TTS speaks for the current card:
- * - Reverse mode: always the Swedish word (it's on the back).
- * - Normal mode, revealed + example present: the example sentence.
- * - Normal mode otherwise: the Swedish word.
- */
 private fun ttsText(state: StudyUiState): String {
     val card = state.queue?.getOrNull(state.index) ?: return ""
     return when {

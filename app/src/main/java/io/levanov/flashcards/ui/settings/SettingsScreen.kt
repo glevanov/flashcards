@@ -33,6 +33,10 @@ import io.levanov.flashcards.data.AppSettings
 import io.levanov.flashcards.ui.theme.FlashcardsTheme
 import kotlin.math.roundToInt
 
+private const val MIN_NEW_CARDS = 0
+private const val MAX_NEW_CARDS = 50
+private const val NEW_CARDS_STEP = 5
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
@@ -92,7 +96,6 @@ private fun SettingsContent(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
-            // New cards per day
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text("New cards per day", style = MaterialTheme.typography.titleMedium)
                 Text(
@@ -103,14 +106,12 @@ private fun SettingsContent(
                 Slider(
                     value = settings.newCardsPerDay.toFloat(),
                     onValueChange = { onNewCardsChange(it.roundToInt()) },
-                    valueRange = 0f..50f,
-                    // steps=9 → 11 positions at 5-card intervals on a 0..50 range
-                    steps = 9,
+                    valueRange = MIN_NEW_CARDS.toFloat()..MAX_NEW_CARDS.toFloat(),
+                    steps = (MAX_NEW_CARDS / NEW_CARDS_STEP) - 1,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
 
-            // Pronunciation (TTS)
             ListItem(
                 headlineContent = { Text("Swedish pronunciation") },
                 supportingContent = { Text("Speaker button on study cards") },

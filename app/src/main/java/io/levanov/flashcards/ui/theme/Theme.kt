@@ -7,7 +7,6 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-// Swedish flag colors
 private val SwedishBlue = Color(0xFF006AA7)
 private val SwedishYellow = Color(0xFFFECC02)
 

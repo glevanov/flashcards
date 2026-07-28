@@ -36,9 +36,9 @@ class LeitnerEngineTest {
         val state = CardState(box = 4, due = today, seen = 3, correct = 3, isNew = false)
         val graded = LeitnerEngine.grade(state, correct = false, today = today)
         assertEquals(1, graded.box)
-        assertEquals(today, graded.due) // interval[1] = 0
+        assertEquals(today, graded.due)
         assertEquals(4, graded.seen)
-        assertEquals(3, graded.correct) // unchanged
+        assertEquals(3, graded.correct)
     }
 
     @Test
