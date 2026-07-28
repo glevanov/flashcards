@@ -292,39 +292,49 @@ private fun SessionContent(
             }
         }
 
-        // Grade row
-        if (state.revealed) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Button(
-                    onClick = { onGrade(false) },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                    ),
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text("Didn't know", style = MaterialTheme.typography.labelLarge)
+        // Grade row — reserve a constant height so the card above stays put
+        // when the buttons appear/disappear instead of shifting up/down.
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(124.dp),
+            contentAlignment = Alignment.BottomCenter,
+        ) {
+            if (state.revealed) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Button(
+                            onClick = { onGrade(false) },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer,
+                                contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                            ),
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            Text("Didn't know", style = MaterialTheme.typography.labelLarge)
+                        }
+                        Button(
+                            onClick = { onGrade(true) },
+                            modifier = Modifier.weight(1f),
+                        ) {
+                            Text("Knew it", style = MaterialTheme.typography.labelLarge)
+                        }
+                    }
+                    TextButton(
+                        onClick = onSkip,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 12.dp),
+                    ) {
+                        Text("Skip")
+                    }
                 }
-                Button(
-                    onClick = { onGrade(true) },
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text("Knew it", style = MaterialTheme.typography.labelLarge)
-                }
-            }
-            TextButton(
-                onClick = onSkip,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 12.dp),
-            ) {
-                Text("Skip")
             }
         }
     }
