@@ -11,6 +11,7 @@ releases and offers updates.
 ```bash
 keytool -genkeypair -v \
   -keystore release.keystore \
+  -storetype PKCS12 \
   -alias flashcards \
   -keyalg RSA -keysize 4096 -validity 10950   # 30 years
 ```
