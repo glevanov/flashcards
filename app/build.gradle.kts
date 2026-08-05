@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "io.levanov.flashcards"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "io.levanov.flashcards"
