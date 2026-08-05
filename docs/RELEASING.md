@@ -34,7 +34,7 @@ Add app → enter the GitHub repo URL → done. It will pick up every new releas
 
 ## CI workflow (`.github/workflows/release.yml`, added in Phase 5)
 
-Trigger: push of a tag matching `v*`.
+Trigger: push of a tag that is a plain integer (e.g. `1`, `2`, `3`).
 
 Steps:
 
@@ -46,14 +46,15 @@ Steps:
    `app/build.gradle.kts` convention in [AGENTS.md](../AGENTS.md)).
 5. Create a GitHub release for the tag and attach
    `app-release.apk` (renamed to include the version, e.g.
-   `svenska-flashcards-v1.0.0.apk`).
+   `svenska-flashcards-1.apk`).
 
 ## Versioning conventions
 
-- Tags: `vMAJOR.MINOR.PATCH` (e.g. `v1.0.0`).
-- `versionName` in `app/build.gradle.kts` = tag without the `v`.
+- Tags are plain integers: `1`, `2`, `3`, … (no semantic versioning).
+- `versionName` in `app/build.gradle.kts` = the tag, as a string.
 - **`versionCode` must increase with every release** — bump it in the same
   commit that updates `versionName`, before tagging. Obtanium/Android use it
-  to detect upgrades.
+  to detect upgrades. Keep `versionCode` and the tag number in sync
+  (release `N` → `versionCode = N`, `versionName = "N"`).
 - Routine workflow: add vocab to `swedish-study` → run `scripts/sync-decks.sh`
-  → bump version → commit → `git tag vX.Y.Z && git push --tags`.
+  → bump version → commit → `git tag 1 && git push --tags` (next release: `2`, …).
