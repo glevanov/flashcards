@@ -86,9 +86,10 @@ fun StudyScreen(
                 },
                 actions = {
                     if (state.queue != null && !state.finished && state.ttsEnabled) {
+                        val spokenText = ttsText(state)
                         IconButton(
-                            enabled = tts.available,
-                            onClick = { tts.speak(ttsText(state)) },
+                            enabled = tts.available && spokenText.isNotEmpty(),
+                            onClick = { tts.speak(spokenText) },
                         ) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_volume_up_24),
@@ -477,8 +478,10 @@ fun StudyScreenFlippedBackPreview() {
 
 private fun ttsText(state: StudyUiState): String {
     val card = state.queue?.getOrNull(state.index) ?: return ""
+    // In reverse mode Swedish is the answer — never speak it while the
+    // card shows only the English front, to avoid leaking the answer.
+    if (state.reversed && !state.flipped) return ""
     return when {
-        state.reversed -> card.swedish
         state.flipped && card.example.isNotBlank() -> card.example
         else -> card.swedish
     }

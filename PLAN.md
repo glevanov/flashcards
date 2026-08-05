@@ -98,7 +98,9 @@ RIVSTART
   - **Swipe right = knew it**, **swipe left = didn't**;
   - ✓ / ✗ buttons always visible as fallback.
 - **🔊 button** speaks the Swedish (and optionally the example) via bundled
-  Piper TTS.
+  Piper TTS. It never speaks Swedish that isn't visible — in English →
+  Swedish sessions it stays silent until the card is flipped, so it can't
+  leak the answer.
 - **Session direction** chosen at session start (Swedish → English or English
   → Swedish; the latter equivalent to the Python tool's `--reverse`). Fixed
   for the session — no mid-session toggle.
