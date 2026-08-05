@@ -19,7 +19,11 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
             // Real devices are arm64 (minSdk 26); x86 ABIs are only for
             // emulators, which use the debug build. Saves ~87 MB in the APK.
             ndk {
