@@ -1,9 +1,12 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - "[0-9]+"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (plain integer, must be greater than the latest release)"
+        required: true
+        type: string
 
 permissions:
   contents: write
@@ -13,6 +16,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Validate version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${{ inputs.version }}"
+          [[ "$VERSION" =~ ^[0-9]+$ ]] || { echo "version must be a plain integer, got: $VERSION"; exit 1; }
+          LATEST=$(gh api "repos/${{ github.repository }}/releases/latest" --jq .tag_name 2>/dev/null || echo 0)
+          [[ "$VERSION" =~ ^[0-9]+$ ]] || LATEST=0
+          if [ "$VERSION" -le "$LATEST" ]; then
+            echo "version $VERSION is not newer than the latest release $LATEST"
+            exit 1
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
 
       - name: Set up JDK 21
         uses: actions/setup-java@v4
@@ -32,11 +49,12 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleRelease -PversionCode=$VERSION -PversionName=$VERSION
 
       - name: Attach APK to GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          mv app/build/outputs/apk/release/app-release.apk svenska-flashcards-$GITHUB_REF_NAME.apk
-          gh release create "$GITHUB_REF_NAME" svenska-flashcards-$GITHUB_REF_NAME.apk --generate-notes
+          mv app/build/outputs/apk/release/app-release.apk svenska-flashcards-$VERSION.apk
+          # Tag doesn't exist yet: create it at the exact commit this build used.
+          gh release create "$VERSION" svenska-flashcards-$VERSION.apk --target "$GITHUB_SHA" --generate-notes
