@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.CircularProgressIndicator
@@ -238,17 +237,11 @@ private fun DirectionSheet(
         Spacer(Modifier.height(8.dp))
         ListItem(
             modifier = Modifier.clickable { onPick(false) },
-            leadingContent = {
-                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
-            },
-            headlineContent = { Text("Swedish → English") },
+            headlineContent = { Text("Swedish to English") },
         )
         ListItem(
             modifier = Modifier.clickable { onPick(true) },
-            leadingContent = {
-                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
-            },
-            headlineContent = { Text("English → Swedish") },
+            headlineContent = { Text("English to Swedish") },
         )
         Spacer(Modifier.height(24.dp))
     }
