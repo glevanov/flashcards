@@ -28,8 +28,8 @@ android {
         applicationId = "io.levanov.flashcards"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1"
+        versionCode = (findProperty("versionCode") as String?)?.toIntOrNull() ?: 1
+        versionName = (findProperty("versionName") as String?) ?: "1"
     }
 
     signingConfigs {
