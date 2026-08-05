@@ -66,9 +66,10 @@ CSV format (must stay compatible with `swedish-study/cards/flashcards.py`):
 - Signing config reads credentials from environment variables / gradle
   properties — **never hardcode or commit keystore or passwords**. See
   [docs/RELEASING.md](docs/RELEASING.md).
-- Every release: bump `versionCode` (monotonic) and `versionName`, tag with
-  a plain integer (`1`, `2`, …), push tag → CI builds and attaches the APK to
-  a GitHub release.
+- Every release: bump `versionCode` (monotonic) and `versionName`, then run
+  the Release workflow manually from the Actions tab, entering the new
+  version number (plain integer). The workflow builds the signed APK and
+  creates the GitHub release + tag.
 - Keep `app-release.apk` filename stable in CI output (`svenska-flashcards-<tag>.apk`)
   so Obtanium's APK matching keeps working.
 
@@ -80,7 +81,8 @@ This repo uses [Conventional Commits](https://www.conventionalcommits.org/):
 - Common types: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `build`, `ci`.
 - Description in imperative mood, lowercase, no trailing period
   (e.g. `feat(study): add card flip animation`, `docs: fix setup typo`).
-- Releases are tagged with plain integers (`1`, `2`, …) — see
+- Releases are created by running the Release workflow manually; versions
+  are plain integers (`1`, `2`, …) — see
   [docs/RELEASING.md](docs/RELEASING.md).
 
 ## Gotchas

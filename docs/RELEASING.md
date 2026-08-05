@@ -34,7 +34,9 @@ Add app → enter the GitHub repo URL → done. It will pick up every new releas
 
 ## CI workflow (`.github/workflows/release.yml`, added in Phase 5)
 
-Trigger: push of a tag that is a plain integer (e.g. `1`, `2`, `3`).
+Trigger: manual (`workflow_dispatch`) from the Actions tab — no tag push
+needed. The workflow asks for the version number (plain integer), validates
+it against the latest release, builds, and creates the release + tag itself.
 
 Steps:
 
@@ -46,15 +48,21 @@ Steps:
    `app/build.gradle.kts` convention in [AGENTS.md](../AGENTS.md)).
 5. Create a GitHub release for the tag and attach
    `app-release.apk` (renamed to include the version, e.g.
-   `svenska-flashcards-1.apk`).
+   `svenska-flashcards-1.apk`). The tag is created at the commit that
+   was built.
 
 ## Versioning conventions
 
-- Tags are plain integers: `1`, `2`, `3`, … (no semantic versioning).
-- `versionName` in `app/build.gradle.kts` = the tag, as a string.
-- **`versionCode` must increase with every release** — bump it in the same
-  commit that updates `versionName`, before tagging. Obtanium/Android use it
-  to detect upgrades. Keep `versionCode` and the tag number in sync
-  (release `N` → `versionCode = N`, `versionName = "N"`).
-- Routine workflow: add vocab to `swedish-study` → run `scripts/sync-decks.sh`
-  → bump version → commit → `git tag 1 && git push --tags` (next release: `2`, …).
+- Versions are plain integers: `1`, `2`, `3`, … (no semantic versioning).
+- The version is decided at release time: run the **Release** workflow
+  manually (Actions tab) and enter the version number. It must be greater
+  than the latest release — the workflow enforces this.
+- The workflow builds with `-PversionCode=N -PversionName=N`, so the APK's
+  `versionCode` and `versionName` both equal the release number. Obtanium and
+  Android use `versionCode` to detect upgrades.
+- Also bump the committed `versionCode`/`versionName` in
+  `app/build.gradle.kts` in the same commit, so the repo state matches the
+  released version.
+- Routine workflow: add vocab to `swedish-study` → run
+  `scripts/sync-decks.sh` → bump version → commit → push → run the
+  **Release** workflow manually with the new version number.
