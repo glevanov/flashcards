@@ -5,15 +5,7 @@ import io.levanov.flashcards.ui.study.TtsManager
 
 class FlashcardsApplication : Application() {
 
+    // Lazy: the engine (and its bundled model) only loads when something
+    // actually accesses the manager — i.e. the study screen.
     val ttsManager: TtsManager by lazy { TtsManager(this) }
-
-    override fun onCreate() {
-        super.onCreate()
-        ttsManager
-    }
-
-    override fun onTerminate() {
-        ttsManager.shutdown()
-        super.onTerminate()
-    }
 }

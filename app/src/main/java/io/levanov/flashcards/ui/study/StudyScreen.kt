@@ -41,7 +41,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
@@ -50,7 +49,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import io.levanov.flashcards.FlashcardsApplication
 import io.levanov.flashcards.R
 import io.levanov.flashcards.ui.theme.FlashcardsTheme
 
@@ -65,8 +63,7 @@ fun StudyScreen(
     val vm: StudyViewModel = viewModel(factory = StudyViewModel.factory(deckName, reversed))
     val state by vm.uiState.collectAsStateWithLifecycle()
 
-    val context = LocalContext.current
-    val tts = (context.applicationContext as FlashcardsApplication).ttsManager
+    val tts = LocalTtsManager.current
 
     val title = when {
         state.finished -> "Done"
@@ -88,8 +85,8 @@ fun StudyScreen(
                     if (state.queue != null && !state.finished && state.ttsEnabled) {
                         val spokenText = ttsText(state)
                         IconButton(
-                            enabled = tts.available && spokenText.isNotEmpty(),
-                            onClick = { tts.speak(spokenText) },
+                            enabled = tts?.available == true && spokenText.isNotEmpty(),
+                            onClick = { tts?.speak(spokenText) },
                         ) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_volume_up_24),

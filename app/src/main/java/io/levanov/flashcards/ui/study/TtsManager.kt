@@ -11,6 +11,7 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.core.content.pm.PackageInfoCompat
 import com.k2fsa.sherpa.onnx.GeneratedAudio
 import com.k2fsa.sherpa.onnx.GenerationConfig
@@ -312,3 +313,9 @@ class TtsManager(context: Context) {
         private const val ESPEAK_DIR_NAME = "espeak-ng-data"
     }
 }
+
+/**
+ * Provided once at the app root (see [io.levanov.flashcards.MainActivity]);
+ * null in previews and tests, where TTS is unavailable.
+ */
+val LocalTtsManager = staticCompositionLocalOf<TtsManager?> { null }
