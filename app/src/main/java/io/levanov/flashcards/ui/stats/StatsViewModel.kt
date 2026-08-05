@@ -6,26 +6,22 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import io.levanov.flashcards.data.DeckRepository
+import io.levanov.flashcards.data.DeckStateProvider
 import io.levanov.flashcards.data.SrsRepository
 import io.levanov.flashcards.data.db.FlashcardsDatabase
-import io.levanov.flashcards.data.db.toCardState
-import io.levanov.flashcards.srs.CardState
-import io.levanov.flashcards.srs.LeitnerEngine
-import io.levanov.flashcards.srs.StatsCalculator
 import io.levanov.flashcards.srs.DeckStats
-import kotlinx.coroutines.Dispatchers
+import io.levanov.flashcards.srs.StatsCalculator
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import java.time.LocalDate
 
 class StatsViewModel(app: Application) : AndroidViewModel(app) {
 
-    private val deckRepo = DeckRepository(app.assets)
-    private val srsRepo = SrsRepository(FlashcardsDatabase.get(app).cardStateDao())
+    private val stateProvider = DeckStateProvider(
+        DeckRepository(app.assets),
+        SrsRepository(FlashcardsDatabase.get(app).cardStateDao()),
+    )
 
     data class DeckStatsUi(
         val deckName: String,
@@ -39,32 +35,20 @@ class StatsViewModel(app: Application) : AndroidViewModel(app) {
         val decks: List<DeckStatsUi>,
     )
 
-    val uiState: StateFlow<StatsUiState?> = combine(
-        flow { emit(deckRepo.loadDecks()) }.flowOn(Dispatchers.IO),
-        srsRepo.observeStates(),
-    ) { decks, entities ->
-        val today = LocalDate.now()
-        val stateByKey = entities.associateBy { it.key }
-
-        val statesByDeck: Map<String, List<CardState>> = decks.associate { deck ->
-            val cardStates = deck.cards.map { c ->
-                stateByKey[deck.cardKey(c.swedish)]?.toCardState()
-                    ?: LeitnerEngine.newState(today)
+    val uiState: StateFlow<StatsUiState?> = stateProvider.observe()
+        .map { deckStates ->
+            val perDeck = deckStates.map { ds ->
+                DeckStatsUi(
+                    deckName = ds.deck.name,
+                    displayName = ds.deck.displayName,
+                    group = ds.deck.group,
+                    stats = StatsCalculator.aggregate(ds.states),
+                )
             }
-            deck.name to cardStates
+            val globalStats = StatsCalculator.aggregate(deckStates.flatMap { it.states })
+            StatsUiState(global = globalStats, decks = perDeck)
         }
-
-        val perDeck = decks.map { deck ->
-            DeckStatsUi(
-                deckName = deck.name,
-                displayName = deck.displayName,
-                group = deck.group,
-                stats = StatsCalculator.aggregate(statesByDeck.getValue(deck.name)),
-            )
-        }
-        val globalStats = StatsCalculator.aggregate(statesByDeck.values.flatten())
-        StatsUiState(global = globalStats, decks = perDeck)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     companion object {
         val Factory = viewModelFactory {
