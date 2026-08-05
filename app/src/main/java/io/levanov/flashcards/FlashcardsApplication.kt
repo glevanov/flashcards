@@ -5,7 +5,13 @@ import io.levanov.flashcards.ui.study.TtsManager
 
 class FlashcardsApplication : Application() {
 
-    // Lazy: the engine (and its bundled model) only loads when something
-    // actually accesses the manager — i.e. the study screen.
     val ttsManager: TtsManager by lazy { TtsManager(this) }
+
+    // Touch the lazy property eagerly: the bundled model loads in the
+    // background at startup so the first playback on the study screen is
+    // instant. Tradeoff: the ~62MB TTS assets are copied/loaded every launch.
+    override fun onCreate() {
+        super.onCreate()
+        ttsManager
+    }
 }
