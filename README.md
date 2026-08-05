@@ -1,24 +1,19 @@
 # Svenska Flashcards
 
 A personal, offline Android flashcard app for studying Swedish vocabulary.
-Native Kotlin + Jetpack Compose. No accounts, no network, no ads.
+Native Kotlin + Jetpack Compose.
+No accounts, no network, no ads.
 
-Vocabulary decks come from the companion repo
-[`../swedish-study`](../swedish-study) and are bundled into the APK as assets.
+Vocabulary decks come from the companion repo [`../swedish-study`](../swedish-study)
+and are bundled into the APK as assets.
+Target level is B1/B2, some vocabulary is based on Rivstart curriculum.
 
 Distributed via GitHub releases → [Obtanium](https://obtainium.imranr.dev/).
 Not published to any app store.
 
-Pronunciation is bundled in-app via Piper Alma (`sv_SE`) + sherpa-onnx, so it
-works fully offline without relying on Android system voice packs. The app uses
-JitPack for the `com.github.k2-fsa:sherpa-onnx:v1.13.4` AAR because sherpa-onnx
-is not published on Maven Central. Runtime TTS assets come from sherpa-onnx's
-published `vits-piper-sv_SE-alma-medium` package (needed for metadata,
-`tokens.txt`, and `espeak-ng-data`), while the upstream Alma model card and
-`.onnx.json` are also bundled for attribution/reference. The `espeak-ng-data`
-assets are trimmed to the Swedish-only subset needed at runtime. The bundled
-TTS assets add about 62 MB of model/data files; the current debug APK is about
-200 MB.
+Pronunciation is bundled in-app via Piper Alma (`sv_SE`) + sherpa-onnx,
+so it works fully offline without relying on Android system voice packs.
+The `espeak-ng-data` assets are trimmed to the Swedish-only subset needed at runtime.
 
 ## Documentation
 
@@ -28,6 +23,11 @@ TTS assets add about 62 MB of model/data files; the current debug APK is about
 | [docs/SETUP.md](docs/SETUP.md) | Local dev environment setup (Fedora) |
 | [docs/RELEASING.md](docs/RELEASING.md) | CI pipeline, signing, Obtanium distribution |
 | [AGENTS.md](AGENTS.md) | Conventions for humans and coding agents |
+
+## Debug build
+- Connect the phone over USB
+- Authorize using USB debugging
+- Run `./gradlew installDebug`
 
 ## Status
 
