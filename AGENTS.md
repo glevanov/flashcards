@@ -28,7 +28,7 @@ flashcards/
 ## Code conventions
 
 - Kotlin, Jetpack Compose, Material 3. Single activity + Compose navigation.
-- `minSdk 26`, `compileSdk 35` (bump deliberately, not casually).
+- `minSdk 26`, `compileSdk 36` (bump deliberately, not casually).
 - No network permission. The app is fully offline — do not add
   `android.permission.INTERNET`.
 - No analytics, crash reporting, or third-party trackers.

@@ -22,7 +22,7 @@ abstract class FlashcardsDatabase : RoomDatabase() {
                     "flashcards.db",
                 )
                     // Pre-1.0 personal app: schema bumps may wipe SRS state.
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration(dropAllTables = true)
                     .build()
                     .also { instance = it }
             }
