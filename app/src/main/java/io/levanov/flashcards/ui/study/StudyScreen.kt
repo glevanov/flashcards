@@ -138,7 +138,7 @@ fun StudyScreen(
 
             else -> SessionContent(
                 state = state,
-                onFlip = vm::toggleReveal,
+                onReveal = vm::reveal,
                 onGrade = vm::grade,
                 onSkip = vm::skip,
                 modifier = Modifier
@@ -152,7 +152,7 @@ fun StudyScreen(
 @Composable
 private fun SessionContent(
     state: StudyUiState,
-    onFlip: () -> Unit,
+    onReveal: () -> Unit,
     onGrade: (Boolean) -> Unit,
     onSkip: () -> Unit,
     modifier: Modifier = Modifier,
@@ -193,7 +193,7 @@ private fun SessionContent(
             contentAlignment = Alignment.Center,
         ) {
             val rotation by animateFloatAsState(
-                targetValue = if (state.faceBack) 180f else 0f,
+                targetValue = if (state.revealed) 180f else 0f,
                 animationSpec = tween(durationMillis = 400),
                 label = "flip",
             )
@@ -208,7 +208,6 @@ private fun SessionContent(
                         rotationY = rotation
                         cameraDistance = 12f * density.density
                     }
-                    .clickable { onFlip() }
                     .then(
                         if (state.revealed) {
                             Modifier.draggable(
@@ -231,7 +230,7 @@ private fun SessionContent(
                                 },
                             )
                         } else {
-                            Modifier
+                            Modifier.clickable { onReveal() }
                         },
                     ),
                 shape = RoundedCornerShape(20.dp),
@@ -398,7 +397,7 @@ fun StudyScreenFrontPreview() {
                 index = 0,
                 revealed = false,
             ),
-            onFlip = {},
+            onReveal = {},
             onGrade = {},
             onSkip = {},
         )
@@ -421,10 +420,9 @@ fun StudyScreenBackPreview() {
                     ),
                 ),
                 index = 0,
-                faceBack = true,
                 revealed = true,
             ),
-            onFlip = {},
+            onReveal = {},
             onGrade = {},
             onSkip = {},
         )
@@ -450,7 +448,7 @@ fun StudyScreenReversedPreview() {
                 revealed = false,
                 reversed = true,
             ),
-            onFlip = {},
+            onReveal = {},
             onGrade = {},
             onSkip = {},
         )
@@ -461,7 +459,7 @@ private fun ttsText(state: StudyUiState): String {
     val card = state.queue?.getOrNull(state.index) ?: return ""
     return when {
         state.reversed -> card.swedish
-        state.faceBack && card.example.isNotBlank() -> card.example
+        state.revealed && card.example.isNotBlank() -> card.example
         else -> card.swedish
     }
 }

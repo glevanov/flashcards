@@ -32,7 +32,6 @@ data class SessionCard(
 data class StudyUiState(
     val queue: List<SessionCard>? = null,
     val index: Int = 0,
-    val faceBack: Boolean = false,
     val revealed: Boolean = false,
     val gradedCount: Int = 0,
     val correctCount: Int = 0,
@@ -91,14 +90,8 @@ class StudyViewModel(
         }
     }
 
-    fun toggleReveal() {
-        _uiState.update {
-            val newFaceBack = !it.faceBack
-            it.copy(
-                faceBack = newFaceBack,
-                revealed = it.revealed || newFaceBack,
-            )
-        }
+    fun reveal() {
+        _uiState.update { it.copy(revealed = true) }
     }
 
     fun grade(correct: Boolean) {
@@ -119,7 +112,6 @@ class StudyViewModel(
         _uiState.update {
             it.copy(
                 index = newIndex,
-                faceBack = false,
                 revealed = false,
                 gradedCount = it.gradedCount + 1,
                 correctCount = it.correctCount + if (correct) 1 else 0,
@@ -141,7 +133,7 @@ class StudyViewModel(
             removeAt(current.index)
             add(card)
         }
-        _uiState.update { it.copy(queue = newQueue, faceBack = false, revealed = false) }
+        _uiState.update { it.copy(queue = newQueue, revealed = false) }
     }
 
     companion object {
