@@ -32,8 +32,8 @@ The `espeak-ng-data` assets are trimmed to the Swedish-only subset needed at run
 ## Status
 
 Phase 4 done: study sessions with Leitner SRS + Room persistence, bundled
-Swedish Piper TTS pronunciation, reverse mode, stats screen (box
-distribution), and settings (new-cards-per-day, TTS toggle). All core features
-complete — Phase 5 is the GitHub Actions release pipeline + Obtanium
-distribution (`./gradlew assembleDebug`).
+Swedish Piper TTS pronunciation, session direction choice (Swedish↔English),
+stats screen (box distribution), and settings (new-cards-per-day, TTS toggle).
+All core features complete — Phase 5 is the GitHub Actions release pipeline +
+Obtanium distribution (`./gradlew assembleDebug`).
 See [PLAN.md](PLAN.md) for the roadmap.

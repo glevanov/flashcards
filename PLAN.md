@@ -92,14 +92,16 @@ RIVSTART
 
 - Front of card: Swedish word/phrase, deck name in the corner, session
   progress (`12 / 40`).
-- **Tap card to flip** (flip animation) → English translation + example sentence.
+- **Tap card to flip** (flip animation) → translation + example; tap again to
+  flip back. Grading stays available once the answer has been seen.
 - After reveal, grade:
   - **Swipe right = knew it**, **swipe left = didn't**;
   - ✓ / ✗ buttons always visible as fallback.
 - **🔊 button** speaks the Swedish (and optionally the example) via bundled
   Piper TTS.
-- Toggle for **reverse mode** (English front → Swedish back) per session,
-  equivalent to the Python tool's `--reverse`.
+- **Session direction** chosen at session start (Swedish → English or English
+  → Swedish; the latter equivalent to the Python tool's `--reverse`). Fixed
+  for the session — no mid-session toggle.
 - Session ends with a summary: correct/total, accuracy %.
 
 ### 3. Stats

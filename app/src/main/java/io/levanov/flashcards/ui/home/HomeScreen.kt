@@ -3,7 +3,7 @@ package io.levanov.flashcards.ui.home
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,17 +13,21 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -36,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,8 +53,7 @@ import io.levanov.flashcards.ui.theme.FlashcardsTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onStudyDeck: (String) -> Unit,
-    onStudyAll: () -> Unit,
+    onStudy: (deck: String?, reversed: Boolean) -> Unit,
     onOpenStats: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
@@ -60,8 +64,7 @@ fun HomeScreen(
         null -> LoadingScaffold(modifier)
         else -> DeckListContent(
             deckUis = d,
-            onStudyDeck = onStudyDeck,
-            onStudyAll = onStudyAll,
+            onStudy = onStudy,
             onOpenStats = onOpenStats,
             onOpenSettings = onOpenSettings,
             modifier = modifier,
@@ -82,12 +85,13 @@ private fun LoadingScaffold(modifier: Modifier) = Scaffold(modifier = modifier) 
     }
 }
 
+private data class StudyTarget(val deck: String?)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DeckListContent(
     deckUis: List<HomeViewModel.DeckUi>,
-    onStudyDeck: (String) -> Unit,
-    onStudyAll: () -> Unit,
+    onStudy: (deck: String?, reversed: Boolean) -> Unit,
     onOpenStats: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
@@ -95,15 +99,18 @@ private fun DeckListContent(
     val totalDue = deckUis.sumOf { it.dueCount }
     val totalNew = deckUis.sumOf { it.newCount }
     val allAvailable = totalDue + totalNew > 0
+    var studyTarget by remember { mutableStateOf<StudyTarget?>(null) }
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     Scaffold(
-        modifier = modifier,
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 title = { Text("Svenska Flashcards") },
                 colors = TopAppBarDefaults.topAppBarColors(
                     titleContentColor = MaterialTheme.colorScheme.primary,
                 ),
+                scrollBehavior = scrollBehavior,
                 actions = {
                     var menuOpen by remember { mutableStateOf(false) }
                     IconButton(onClick = { menuOpen = true }) {
@@ -124,40 +131,31 @@ private fun DeckListContent(
                     }
                 },
             )
-        }
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = { if (allAvailable) studyTarget = StudyTarget(null) },
+                modifier = Modifier.then(if (!allAvailable) Modifier.alpha(0.5f) else Modifier),
+                icon = {
+                    Icon(Icons.Filled.PlayArrow, contentDescription = null)
+                },
+                text = {
+                    Text(
+                        "Study all · $totalDue due · $totalNew new",
+                        maxLines = 1,
+                    )
+                },
+            )
+        },
+        floatingActionButtonPosition = FabPosition.Center,
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = innerPadding,
+            contentPadding = PaddingValues(
+                top = innerPadding.calculateTopPadding(),
+                bottom = innerPadding.calculateBottomPadding() + 88.dp,
+            ),
         ) {
-            item(key = "study-all") {
-                ElevatedCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .then(if (allAvailable) Modifier.clickable { onStudyAll() } else Modifier),
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .then(if (!allAvailable) Modifier.alpha(0.5f) else Modifier)
-                            .padding(vertical = 16.dp, horizontal = 16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Text(
-                            "Study all due",
-                            style = MaterialTheme.typography.titleMedium,
-                        )
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            "$totalDue due · $totalNew new",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-            }
-
             if (deckUis.isEmpty()) {
                 item {
                     Box(
@@ -187,7 +185,7 @@ private fun DeckListContent(
                     items(items = groupDecks, key = { it.deck.name }) { deckUi ->
                         val deck = deckUi.deck
                         ListItem(
-                            modifier = Modifier.clickable { onStudyDeck(deck.name) },
+                            modifier = Modifier.clickable { studyTarget = StudyTarget(deck.name) },
                             headlineContent = {
                                 Text(
                                     deck.displayName,
@@ -212,6 +210,47 @@ private fun DeckListContent(
                 }
             }
         }
+    }
+
+    studyTarget?.let { target ->
+        DirectionSheet(
+            onPick = { reversed ->
+                onStudy(target.deck, reversed)
+                studyTarget = null
+            },
+            onDismiss = { studyTarget = null },
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DirectionSheet(
+    onPick: (reversed: Boolean) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Text(
+            "Study direction",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(horizontal = 24.dp),
+        )
+        Spacer(Modifier.height(8.dp))
+        ListItem(
+            modifier = Modifier.clickable { onPick(false) },
+            leadingContent = {
+                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+            },
+            headlineContent = { Text("Swedish → English") },
+        )
+        ListItem(
+            modifier = Modifier.clickable { onPick(true) },
+            leadingContent = {
+                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+            },
+            headlineContent = { Text("English → Swedish") },
+        )
+        Spacer(Modifier.height(24.dp))
     }
 }
 
@@ -240,8 +279,7 @@ fun HomeScreenPreview() {
                     progress = 1f,
                 ),
             ),
-            onStudyDeck = {},
-            onStudyAll = {},
+            onStudy = { _, _ -> },
             onOpenStats = {},
             onOpenSettings = {},
         )

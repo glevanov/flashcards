@@ -32,7 +32,8 @@ data class SessionCard(
 data class StudyUiState(
     val queue: List<SessionCard>? = null,
     val index: Int = 0,
-    val revealed: Boolean = false,
+    val flipped: Boolean = false,
+    val answerSeen: Boolean = false,
     val gradedCount: Int = 0,
     val correctCount: Int = 0,
     val finished: Boolean = false,
@@ -43,13 +44,14 @@ data class StudyUiState(
 class StudyViewModel(
     app: Application,
     val deckName: String?,
+    reversed: Boolean,
 ) : AndroidViewModel(app) {
 
     private val deckRepo = DeckRepository(app.assets)
     private val srsRepo = SrsRepository(FlashcardsDatabase.get(app).cardStateDao())
     private val settingsRepo = SettingsRepository(app)
 
-    private val _uiState = MutableStateFlow(StudyUiState())
+    private val _uiState = MutableStateFlow(StudyUiState(reversed = reversed))
     val uiState: StateFlow<StudyUiState> = _uiState.asStateFlow()
 
     private val stateByKey = mutableMapOf<String, CardState>()
@@ -90,15 +92,17 @@ class StudyViewModel(
         }
     }
 
-    fun reveal() {
-        _uiState.update { it.copy(revealed = true) }
+    fun toggleFlip() {
+        _uiState.update {
+            it.copy(flipped = !it.flipped, answerSeen = it.answerSeen || !it.flipped)
+        }
     }
 
     fun grade(correct: Boolean) {
         val current = _uiState.value
         val queue = current.queue ?: return
         if (current.finished || current.index >= queue.size) return
-        if (!current.revealed) return
+        if (!current.answerSeen) return
         val card = queue[current.index]
         val today = LocalDate.now()
         val state = stateByKey.getValue(card.key)
@@ -112,16 +116,13 @@ class StudyViewModel(
         _uiState.update {
             it.copy(
                 index = newIndex,
-                revealed = false,
+                flipped = false,
+                answerSeen = false,
                 gradedCount = it.gradedCount + 1,
                 correctCount = it.correctCount + if (correct) 1 else 0,
                 finished = finished,
             )
         }
-    }
-
-    fun toggleReversed() {
-        _uiState.update { it.copy(reversed = !it.reversed) }
     }
 
     fun skip() {
@@ -133,15 +134,16 @@ class StudyViewModel(
             removeAt(current.index)
             add(card)
         }
-        _uiState.update { it.copy(queue = newQueue, revealed = false) }
+        _uiState.update { it.copy(queue = newQueue, flipped = false, answerSeen = false) }
     }
 
     companion object {
-        fun factory(deckName: String?) = viewModelFactory {
+        fun factory(deckName: String?, reversed: Boolean) = viewModelFactory {
             initializer {
                 StudyViewModel(
                     this[androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as Application,
                     deckName,
+                    reversed,
                 )
             }
         }

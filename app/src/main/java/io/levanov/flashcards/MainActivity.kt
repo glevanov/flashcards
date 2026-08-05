@@ -26,11 +26,8 @@ class MainActivity : ComponentActivity() {
                 NavHost(navController, startDestination = Routes.HOME) {
                     composable(Routes.HOME) {
                         HomeScreen(
-                            onStudyDeck = { deck ->
-                                navController.navigate(Routes.study(deck))
-                            },
-                            onStudyAll = {
-                                navController.navigate(Routes.STUDY_ALL)
+                            onStudy = { deck, reversed ->
+                                navController.navigate(Routes.study(deck, reversed))
                             },
                             onOpenStats = {
                                 navController.navigate(Routes.STATS)
@@ -41,17 +38,22 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     composable(
-                        route = "study?deck={deck}",
+                        route = "study?deck={deck}&direction={direction}",
                         arguments = listOf(
                             navArgument("deck") {
                                 type = NavType.StringType
                                 nullable = true
                                 defaultValue = null
                             },
+                            navArgument("direction") {
+                                type = NavType.StringType
+                                defaultValue = Routes.DIRECTION_SV_EN
+                            },
                         ),
                     ) { entry ->
                         StudyScreen(
                             deckName = entry.arguments?.getString("deck"),
+                            reversed = entry.arguments?.getString("direction") == Routes.DIRECTION_EN_SV,
                             onExit = { navController.popBackStack() },
                         )
                     }

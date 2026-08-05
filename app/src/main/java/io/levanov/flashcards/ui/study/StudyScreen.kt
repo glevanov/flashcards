@@ -1,6 +1,6 @@
 package io.levanov.flashcards.ui.study
 
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -29,12 +28,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -59,10 +58,11 @@ import io.levanov.flashcards.ui.theme.FlashcardsTheme
 @Composable
 fun StudyScreen(
     deckName: String?,
+    reversed: Boolean,
     onExit: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val vm: StudyViewModel = viewModel(factory = StudyViewModel.factory(deckName))
+    val vm: StudyViewModel = viewModel(factory = StudyViewModel.factory(deckName, reversed))
     val state by vm.uiState.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
@@ -85,17 +85,6 @@ fun StudyScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = vm::toggleReversed) {
-                        Icon(
-                            Icons.Filled.Refresh,
-                            contentDescription = "Reverse direction",
-                            tint = if (state.reversed) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                LocalContentColor.current
-                            },
-                        )
-                    }
                     if (state.queue != null && !state.finished && state.ttsEnabled) {
                         IconButton(
                             enabled = tts.available,
@@ -138,7 +127,7 @@ fun StudyScreen(
 
             else -> SessionContent(
                 state = state,
-                onReveal = vm::reveal,
+                onToggleFlip = vm::toggleFlip,
                 onGrade = vm::grade,
                 onSkip = vm::skip,
                 modifier = Modifier
@@ -152,7 +141,7 @@ fun StudyScreen(
 @Composable
 private fun SessionContent(
     state: StudyUiState,
-    onReveal: () -> Unit,
+    onToggleFlip: () -> Unit,
     onGrade: (Boolean) -> Unit,
     onSkip: () -> Unit,
     modifier: Modifier = Modifier,
@@ -192,12 +181,14 @@ private fun SessionContent(
                 .padding(16.dp),
             contentAlignment = Alignment.Center,
         ) {
-            val rotation by animateFloatAsState(
-                targetValue = if (state.revealed) 180f else 0f,
-                animationSpec = tween(durationMillis = 400),
-                label = "flip",
-            )
-            val showFront = rotation <= 90f
+            val rotation = remember(card.key) { Animatable(if (state.flipped) 180f else 0f) }
+            LaunchedEffect(card.key, state.flipped) {
+                val target = if (state.flipped) 180f else 0f
+                if (rotation.value != target) {
+                    rotation.animateTo(target, tween(durationMillis = 400))
+                }
+            }
+            val showFront = rotation.value <= 90f
 
             Card(
                 modifier = Modifier
@@ -205,33 +196,37 @@ private fun SessionContent(
                     .height(280.dp)
                     .graphicsLayer {
                         translationX = offsetX
-                        rotationY = rotation
+                        rotationY = rotation.value
                         cameraDistance = 12f * density.density
                     }
                     .then(
-                        if (state.revealed) {
-                            Modifier.draggable(
-                                state = draggableState,
-                                orientation = Orientation.Horizontal,
-                                onDragStopped = {
-                                    when {
-                                        offsetX > thresholdPx -> {
-                                            onGrade(true)
-                                            offsetX = 0f
-                                        }
+                        Modifier
+                            .clickable { onToggleFlip() }
+                            .then(
+                                if (state.answerSeen) {
+                                    Modifier.draggable(
+                                        state = draggableState,
+                                        orientation = Orientation.Horizontal,
+                                        onDragStopped = {
+                                            when {
+                                                offsetX > thresholdPx -> {
+                                                    onGrade(true)
+                                                    offsetX = 0f
+                                                }
 
-                                        offsetX < -thresholdPx -> {
-                                            onGrade(false)
-                                            offsetX = 0f
-                                        }
+                                                offsetX < -thresholdPx -> {
+                                                    onGrade(false)
+                                                    offsetX = 0f
+                                                }
 
-                                        else -> offsetX = 0f
-                                    }
+                                                else -> offsetX = 0f
+                                            }
+                                        },
+                                    )
+                                } else {
+                                    Modifier
                                 },
-                            )
-                        } else {
-                            Modifier.clickable { onReveal() }
-                        },
+                            ),
                     ),
                 shape = RoundedCornerShape(20.dp),
                 elevation = CardDefaults.elevatedCardElevation(defaultElevation = 6.dp),
@@ -295,7 +290,7 @@ private fun SessionContent(
                 .height(124.dp),
             contentAlignment = Alignment.BottomCenter,
         ) {
-            if (state.revealed) {
+            if (state.answerSeen) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Row(
                         modifier = Modifier
@@ -395,9 +390,8 @@ fun StudyScreenFrontPreview() {
                     ),
                 ),
                 index = 0,
-                revealed = false,
             ),
-            onReveal = {},
+            onToggleFlip = {},
             onGrade = {},
             onSkip = {},
         )
@@ -420,9 +414,10 @@ fun StudyScreenBackPreview() {
                     ),
                 ),
                 index = 0,
-                revealed = true,
+                flipped = true,
+                answerSeen = true,
             ),
-            onReveal = {},
+            onToggleFlip = {},
             onGrade = {},
             onSkip = {},
         )
@@ -445,10 +440,35 @@ fun StudyScreenReversedPreview() {
                     ),
                 ),
                 index = 0,
-                revealed = false,
                 reversed = true,
             ),
-            onReveal = {},
+            onToggleFlip = {},
+            onGrade = {},
+            onSkip = {},
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun StudyScreenFlippedBackPreview() {
+    FlashcardsTheme {
+        SessionContent(
+            state = StudyUiState(
+                queue = listOf(
+                    SessionCard(
+                        key = "rivstart/kapitel-01::en fritid",
+                        deck = "rivstart/kapitel-01",
+                        swedish = "en fritid",
+                        english = "free time",
+                        example = "På min fritid spelar jag fotboll.",
+                    ),
+                ),
+                index = 0,
+                flipped = false,
+                answerSeen = true,
+            ),
+            onToggleFlip = {},
             onGrade = {},
             onSkip = {},
         )
@@ -459,7 +479,7 @@ private fun ttsText(state: StudyUiState): String {
     val card = state.queue?.getOrNull(state.index) ?: return ""
     return when {
         state.reversed -> card.swedish
-        state.revealed && card.example.isNotBlank() -> card.example
+        state.flipped && card.example.isNotBlank() -> card.example
         else -> card.swedish
     }
 }
