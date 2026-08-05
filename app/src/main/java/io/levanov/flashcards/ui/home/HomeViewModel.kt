@@ -44,7 +44,7 @@ class HomeViewModel(app: Application) : AndroidViewModel(app) {
             var dueCount = 0
             var newCount = 0
             for (card in cards) {
-                val key = "${deck.name}::${card.swedish}"
+                val key = deck.cardKey(card.swedish)
                 val st = stateByKey[key]?.toCardState() ?: LeitnerEngine.newState(today)
                 if (st.isNew) newCount++ else if (LeitnerEngine.isDue(st, today)) dueCount++
             }

@@ -48,7 +48,7 @@ class StatsViewModel(app: Application) : AndroidViewModel(app) {
 
         val statesByDeck: Map<String, List<CardState>> = decks.associate { deck ->
             val cardStates = deck.cards.map { c ->
-                stateByKey["${deck.name}::${c.swedish}"]?.toCardState()
+                stateByKey[deck.cardKey(c.swedish)]?.toCardState()
                     ?: LeitnerEngine.newState(today)
             }
             deck.name to cardStates

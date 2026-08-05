@@ -9,4 +9,14 @@ data class Deck(
     val group: String get() = name.substringBefore('/', "")
     /** File part, e.g. "adjectives". */
     val displayName: String get() = name.substringAfterLast('/')
+
+    /**
+     * Stable SRS key for a card: "<deck>::<swedish>". This is the Room primary
+     * key — renaming a deck or a Swedish term orphans its SRS state.
+     */
+    fun cardKey(swedish: String): String = "$name$KEY_SEPARATOR$swedish"
+
+    companion object {
+        const val KEY_SEPARATOR = "::"
+    }
 }

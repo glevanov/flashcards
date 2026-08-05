@@ -61,13 +61,13 @@ class StudyViewModel(
             val appSettings = settingsRepo.settings.first()
             val decks = deckRepo.loadDecks()
             val scoped = if (deckName != null) decks.filter { it.name == deckName } else decks
-            val keys = scoped.flatMap { d -> d.cards.map { c -> "${d.name}::${c.swedish}" to d.name } }
+            val keys = scoped.flatMap { d -> d.cards.map { c -> d.cardKey(c.swedish) to d.name } }
             val states = srsRepo.statesFor(keys)
             stateByKey.putAll(states)
             val today = LocalDate.now()
             val candidates = scoped.flatMap { d ->
                 d.cards.map { c ->
-                    val key = "${d.name}::${c.swedish}"
+                    val key = d.cardKey(c.swedish)
                     key to states.getValue(key)
                 }
             }
@@ -78,8 +78,9 @@ class StudyViewModel(
             )
             val keyToCard = scoped.flatMap { d ->
                 d.cards.map { c ->
-                    "${d.name}::${c.swedish}" to SessionCard(
-                        key = "${d.name}::${c.swedish}",
+                val key = d.cardKey(c.swedish)
+                key to SessionCard(
+                    key = key,
                         deck = d.name,
                         swedish = c.swedish,
                         english = c.english,
