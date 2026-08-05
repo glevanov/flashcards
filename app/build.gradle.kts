@@ -20,6 +20,11 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
+            // Real devices are arm64 (minSdk 26); x86 ABIs are only for
+            // emulators, which use the debug build. Saves ~87 MB in the APK.
+            ndk {
+                abiFilters += listOf("arm64-v8a")
+            }
         }
     }
     compileOptions {
