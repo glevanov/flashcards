@@ -478,11 +478,11 @@ fun StudyScreenFlippedBackPreview() {
 
 private fun ttsText(state: StudyUiState): String {
     val card = state.queue?.getOrNull(state.index) ?: return ""
-    // In reverse mode Swedish is the answer — never speak it while the
-    // card shows only the English front, to avoid leaking the answer.
-    if (state.reversed && !state.flipped) return ""
+    if (!swedishVisible(state)) return ""
     return when {
         state.flipped && card.example.isNotBlank() -> card.example
         else -> card.swedish
     }
 }
+
+private fun swedishVisible(state: StudyUiState): Boolean = !state.reversed || state.flipped
