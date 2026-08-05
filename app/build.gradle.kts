@@ -1,9 +1,24 @@
+import java.io.File
+import java.util.Base64
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
 }
+
+// Signing credentials come from environment variables (CI) or Gradle
+// properties (-PKEYSTORE_BASE64=...). Never commit keystores or passwords.
+// CI provides KEYSTORE_BASE64; a local KEYSTORE_FILE path is also supported.
+fun credential(name: String): String? =
+    System.getenv(name) ?: (findProperty(name) as String?)
+
+val signingKeystoreFile = credential("KEYSTORE_FILE")?.let(::File)
+val signingKeystoreBase64 = credential("KEYSTORE_BASE64")
+val signingKeystorePassword = credential("KEYSTORE_PASSWORD")
+val signingKeyAlias = credential("KEY_ALIAS")
+val signingKeyPassword = credential("KEY_PASSWORD")
 
 android {
     namespace = "io.levanov.flashcards"
@@ -17,8 +32,31 @@ android {
         versionName = "0.1.0"
     }
 
+    signingConfigs {
+        create("release") {
+            // NOTE: names must not collide with SigningConfig's own properties
+            // (storeFile, keystorePassword, keyAlias, keyPassword) or Kotlin
+            // resolves them against the receiver instead of the vals above.
+            val file = signingKeystoreFile ?: signingKeystoreBase64?.let { b64 ->
+                File.createTempFile("release-keystore", ".p12").apply {
+                    writeBytes(Base64.getDecoder().decode(b64))
+                    deleteOnExit()
+                }
+            }
+            if (file != null && signingKeystorePassword != null && signingKeyAlias != null && signingKeyPassword != null) {
+                storeFile = file
+                storePassword = signingKeystorePassword
+                keyAlias = signingKeyAlias
+                keyPassword = signingKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
+            // Signed only when credentials are present; otherwise the build
+            // falls back to an unsigned APK (local builds without secrets).
+            signingConfig = signingConfigs.getByName("release").takeIf { it.storeFile != null }
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
