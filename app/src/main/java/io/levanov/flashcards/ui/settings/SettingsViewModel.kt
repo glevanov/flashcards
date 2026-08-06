@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import io.levanov.flashcards.BuildConfig
 import io.levanov.flashcards.data.AppSettings
 import io.levanov.flashcards.data.DeckRepository
 import io.levanov.flashcards.data.SettingsRepository
@@ -29,6 +30,11 @@ data class SettingsUiState(
     val message: String? = null,
 )
 
+data class AppInfo(
+    val versionName: String,
+    val isDebug: Boolean,
+)
+
 class SettingsViewModel(app: Application) : AndroidViewModel(app) {
 
     private val repo = SettingsRepository(app)
@@ -37,6 +43,11 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
         FlashcardsDatabase.get(app).cardStateDao(),
         DeckRepository(app.assets),
         repo,
+    )
+
+    val appInfo: AppInfo = AppInfo(
+        versionName = BuildConfig.VERSION_NAME,
+        isDebug = BuildConfig.DEBUG,
     )
 
     val settings: StateFlow<AppSettings?> =

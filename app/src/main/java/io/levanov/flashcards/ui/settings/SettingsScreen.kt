@@ -109,6 +109,7 @@ fun SettingsScreen(
 
         else -> SettingsContent(
             settings = s,
+            appInfo = vm.appInfo,
             busy = ui.busy,
             onNewCardsChange = vm::setNewCardsPerDay,
             onTtsChange = vm::setTtsEnabled,
@@ -125,6 +126,7 @@ fun SettingsScreen(
 @Composable
 private fun SettingsContent(
     settings: AppSettings,
+    appInfo: AppInfo,
     busy: Boolean,
     onNewCardsChange: (Int) -> Unit,
     onTtsChange: (Boolean) -> Unit,
@@ -214,6 +216,25 @@ private fun SettingsContent(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                Text(
+                    "Version ${appInfo.versionName}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                if (appInfo.isDebug) {
+                    Text(
+                        "Debug build",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
         }
     }
 }
@@ -224,6 +245,10 @@ fun SettingsScreenPreview() {
     FlashcardsTheme {
         SettingsContent(
             settings = AppSettings(newCardsPerDay = 10, ttsEnabled = true),
+            appInfo = AppInfo(
+                versionName = "2",
+                isDebug = true,
+            ),
             busy = false,
             onNewCardsChange = {},
             onTtsChange = {},
