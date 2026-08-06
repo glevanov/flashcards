@@ -43,9 +43,11 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
         with:
-          # Avoid the proprietary gradle-actions-caching component; the release
-          # job runs rarely, so the cache isn't worth the ToU.
+          # Avoid the proprietary gradle-actions-caching component; the cache isn't worth the ToU.
           cache-disabled: true
+
+      - name: Verify (unit tests + debug build)
+        run: ./gradlew testDebugUnitTest assembleDebug
 
       - name: Build signed release APK
         env:
