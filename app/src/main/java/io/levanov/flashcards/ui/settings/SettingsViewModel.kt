@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 data class SettingsUiState(
     val busy: Boolean = false,
     val pendingImport: ImportPreview? = null,
+    val confirmingClear: Boolean = false,
     val message: String? = null,
 )
 
@@ -116,6 +117,28 @@ class SettingsViewModel(app: Application) : AndroidViewModel(app) {
 
     fun dismissImport() {
         _uiState.update { it.copy(pendingImport = null) }
+    }
+
+    fun requestClearData() {
+        _uiState.update { it.copy(confirmingClear = true) }
+    }
+
+    fun dismissClearData() {
+        _uiState.update { it.copy(confirmingClear = false) }
+    }
+
+    fun confirmClearData() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(busy = true, confirmingClear = false) }
+            try {
+                backupRepo.clearAllData()
+                _uiState.update { it.copy(busy = false, message = "All progress cleared") }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _uiState.update { it.copy(busy = false, message = backupErrorMessage(e)) }
+            }
+        }
     }
 
     fun messageShown() {

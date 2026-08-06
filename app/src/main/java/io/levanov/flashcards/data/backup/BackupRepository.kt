@@ -53,6 +53,11 @@ class BackupRepository(
         settingsRepository.setTtsEnabled(preview.settings.ttsEnabled)
     }
 
+    suspend fun clearAllData() {
+        dao.deleteAll()
+        settingsRepository.reset()
+    }
+
     private fun readAll(input: java.io.InputStream?): String {
         val stream = input ?: throw IOException("Cannot open file for reading")
         return stream.use { it.readBytes().toString(Charsets.UTF_8) }

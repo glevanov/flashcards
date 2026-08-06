@@ -2,6 +2,7 @@ package io.levanov.flashcards.ui.settings
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -92,6 +94,28 @@ fun SettingsScreen(
         )
     }
 
+    if (ui.confirmingClear) {
+        AlertDialog(
+            onDismissRequest = vm::dismissClearData,
+            title = { Text("Clear progress?") },
+            text = {
+                Text(
+                    "This permanently deletes all progress, SRS state, and settings. " +
+                        "Your decks are not removed. This cannot be undone.",
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = vm::confirmClearData,
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                ) { Text("Clear progress") }
+            },
+            dismissButton = {
+                TextButton(onClick = vm::dismissClearData) { Text("Cancel") }
+            },
+        )
+    }
+
     when (val s = settings) {
         null -> Scaffold(
             modifier = modifier,
@@ -115,6 +139,7 @@ fun SettingsScreen(
             onTtsChange = vm::setTtsEnabled,
             onExport = { exportLauncher.launch(suggestedBackupFileName()) },
             onImport = { importLauncher.launch(IMPORT_MIME_TYPES) },
+            onRequestClear = vm::requestClearData,
             onExit = onExit,
             snackbarHostState = snackbarHostState,
             modifier = modifier,
@@ -132,6 +157,7 @@ private fun SettingsContent(
     onTtsChange: (Boolean) -> Unit,
     onExport: () -> Unit,
     onImport: () -> Unit,
+    onRequestClear: () -> Unit,
     onExit: () -> Unit,
     snackbarHostState: SnackbarHostState,
     modifier: Modifier = Modifier,
@@ -209,6 +235,17 @@ private fun SettingsContent(
                 ) {
                     Text("Import backup")
                 }
+                OutlinedButton(
+                    onClick = onRequestClear,
+                    enabled = !busy,
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error,
+                    ),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("Clear progress")
+                }
                 Text(
                     "Saves your progress and settings to a JSON file. " +
                         "Importing replaces all current progress.",
@@ -254,6 +291,7 @@ fun SettingsScreenPreview() {
             onTtsChange = {},
             onExport = {},
             onImport = {},
+            onRequestClear = {},
             onExit = {},
             snackbarHostState = SnackbarHostState(),
         )

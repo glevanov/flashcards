@@ -33,6 +33,13 @@ class SettingsRepository(private val appContext: Context) {
         appContext.settingsStore.edit { it[KEY_TTS] = enabled }
     }
 
+    suspend fun reset() {
+        appContext.settingsStore.edit {
+            it[KEY_NEW_CARDS] = SessionBuilder.DEFAULT_NEW_CARDS
+            it[KEY_TTS] = true
+        }
+    }
+
     private companion object {
         val KEY_NEW_CARDS = intPreferencesKey("new_cards_per_day")
         val KEY_TTS = booleanPreferencesKey("tts_enabled")
