@@ -1,5 +1,12 @@
 # Changelog
 
+## 3
+
+- add backup/restore in settings: export SRS progress and settings to a
+  JSON file, restore from a file later
+- settings footer now shows the app version and a debug badge on debug builds
+- add "clear all progress" button in settings with a confirmation dialog
+
 ## 2
 
 - fix crash on launch in minified builds: keep navigation route classes
