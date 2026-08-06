@@ -32,7 +32,7 @@ to update the app in place (users would have to uninstall and lose SRS state).
 
 Add app → enter the GitHub repo URL → done. It will pick up every new release.
 
-## CI workflow (`.github/workflows/release.yml`, added in Phase 5)
+## CI workflow (`.github/workflows/release.yml`)
 
 Trigger: manual (`workflow_dispatch`) from the Actions tab — no tag push
 needed. The workflow asks for the version number (plain integer), validates
@@ -64,5 +64,6 @@ Steps:
   `app/build.gradle.kts` in the same commit, so the repo state matches the
   released version.
 - Routine workflow: add vocab to `swedish-study` → run
-  `scripts/sync-decks.sh` → bump version → commit → push → run the
-  **Release** workflow manually with the new version number.
+  `scripts/sync-decks.sh` → bump the version in `app/build.gradle.kts` → add
+  a `CHANGELOG.md` entry → commit → push → run the **Release** workflow
+  manually with the new version number.

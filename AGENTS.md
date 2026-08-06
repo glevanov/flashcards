@@ -1,7 +1,7 @@
 # Conventions for contributors and coding agents
 
-Read [PLAN.md](PLAN.md) first — it contains the design, the locked-in
-decisions, and the roadmap. Don't deviate from locked decisions without asking.
+The design decisions in this file are locked in — don't deviate from them
+without asking.
 
 ## Project layout (target state)
 
@@ -21,8 +21,7 @@ flashcards/
 ├── scripts/
 │   └── sync-decks.sh              # copies decks from ../swedish-study
 ├── docs/
-├── PLAN.md
-└── .github/workflows/release.yml  # Phase 5
+└── .github/workflows/release.yml
 ```
 
 ## Code conventions
@@ -34,7 +33,6 @@ flashcards/
 - No analytics, crash reporting, or third-party trackers.
 - The SRS engine (`srs/`) must stay pure Kotlin with no Android dependencies
   so it can be unit-tested on the JVM.
-- Follow the design in [PLAN.md](PLAN.md) for UI and interaction.
 
 ## Deck conventions (assets/vocab/)
 
@@ -53,7 +51,7 @@ CSV format (must stay compatible with `swedish-study/cards/flashcards.py`):
   **renaming a deck or a Swedish term orphans its SRS state** (acceptable for
   a personal app, but be aware).
 
-## SRS rules (do not change without updating PLAN.md)
+## SRS rules (locked — do not change without asking)
 
 - Leitner boxes 1–6, intervals in days: `{1: 0, 2: 1, 3: 3, 4: 7, 5: 16, 6: 35}`.
 - Correct → box + 1 (cap 6). Wrong → box 1. `due = today + interval[box]`.
