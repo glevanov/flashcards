@@ -26,6 +26,7 @@ flashcards/
 
 ## Code conventions
 
+- Prefer self-documenting code. Do not add comments unless absolutely necessary.
 - Kotlin, Jetpack Compose, Material 3. Single activity + Compose navigation.
 - `minSdk 26`, `compileSdk 37` (bump deliberately, not casually).
 - No network permission. The app is fully offline — do not add
